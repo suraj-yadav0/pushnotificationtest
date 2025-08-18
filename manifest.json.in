@@ -1,0 +1,15 @@
+{
+    "name": "pushnotification.surajyadav",
+    "description": "Push Notification Test App",
+    "architecture": "@CLICK_ARCH@",
+    "title": "Push Notification Test",
+    "hooks": {
+        "pushnotification": {
+            "apparmor": "pushnotification.apparmor",
+            "desktop":  "pushnotification.desktop"
+        }
+    },
+    "version": "1.0.0",
+    "maintainer": "Suraj Yadav <surajyadav200701@gmail.com>",
+    "framework" : "@CLICK_FRAMEWORK@"
+}
