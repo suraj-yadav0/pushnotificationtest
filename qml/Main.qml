@@ -15,6 +15,7 @@
  */
 import QtQuick 2.9
 import Ubuntu.Components 1.3
+import Ubuntu.Components.Popups 1.3
 import Qt.labs.settings 1.0
 
 // Note: Ubuntu.PushNotifications 0.1 is deprecated
@@ -35,6 +36,11 @@ MainView {
         property string lastChatId: ""
         property int totalNotifications: 0
         property bool pushServiceEnabled: false
+    }
+
+    // Local notification helper for testing
+    SimpleLocalNotifier {
+        id: localNotifier
     }
 
     // Modern Ubuntu Touch push notification setup
@@ -116,10 +122,10 @@ MainView {
         console.log("Opening chat:", chatId);
         chatIdLabel.text = "Opened from notification: Chat " + chatId;
         chatIdLabel.visible = true;
-        
+
         // Clear the stored chat ID
         settings.lastChatId = "";
-        
+
         // Reset after 5 seconds
         clearChatTimer.start();
     }
@@ -182,10 +188,66 @@ MainView {
                 enabled: (pushService.token && pushService.token.length > 0)
 
                 onClicked: {
-                    // For testing, we'll create a local notification
-                    // In a real app, you'd send this to your server which would
-                    // then send the push notification via Ubuntu Push Service
+                    // Send a REAL notification using our notification system
+                    console.log("🚀 SENDING REAL TEST NOTIFICATION 🚀");
+
+                    // Method 1: Use our notification system
+                    localNotifier.sendNotification("Push Notification Test", "✅ SUCCESS! This is a real test notification from your app. Check your notification panel!", "info", "test_notification_" + Date.now());
+
+                    // Method 2: Show a visual notification popup (THIS WILL BE VISIBLE!)
+                    showNotificationPopup("🔔 Dummy Notification", "✅ SUCCESS! Your notification app is working perfectly! This is your dummy notification.");
+
+                    // Method 3: Send system notification
+                    localNotifier.sendSystemNotification("🔔 Your push notification test was successful! Check the notification panel.");
+
+                    // Update the UI to show success
+                    helloLabel.text = i18n.tr('✅ NOTIFICATION SENT!\n\nA dummy notification popup should appear above!\nThis simulates a real system notification.');
+                    helloLabel.color = "green";
+
+                    // Also show the visual simulation
                     sendTestNotification();
+
+                    // Reset color after a few seconds using Timer
+                    resetTimer.start();
+                }
+            }
+
+            // LOCAL NOTIFICATION TESTING BUTTONS
+            Button {
+                id: localNotifButton
+                text: i18n.tr('Send REAL Local Notification')
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: theme.palette.normal.positive
+
+                onClicked: {
+                    console.log("Sending real local notification...");
+                    localNotifier.sendTextMessage("Local Test", "This is a REAL system notification!", "123456789");
+                }
+            }
+
+            Button {
+                id: localTestSuiteButton
+                text: i18n.tr('Run Local Notification Tests')
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: theme.palette.normal.activity
+
+                onClicked: {
+                    console.log("Running local notification test suite...");
+                    localNotifier.runTests();
+                    helloLabel.text = i18n.tr('Local notifications sent!\nCheck your notification panel!');
+                    resetTimer.start();
+                }
+            }
+
+            Button {
+                id: photoNotifButton
+                text: i18n.tr('Send Photo Notification')
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                onClicked: {
+                    localNotifier.sendPhotoMessage("Alice", "987654321");
+                    helloLabel.text = i18n.tr('Photo notification sent!');
+                    resetTimer.start();
                 }
             }
 
@@ -210,12 +272,12 @@ MainView {
                 id: copyTokenButton
                 text: i18n.tr('Copy Token to Clipboard')
                 anchors.horizontalCenter: parent.horizontalCenter
-                enabled: pushClient.registered && pushClient.token
-                visible: pushClient.registered && pushClient.token
+                enabled: pushService.token && pushService.token.length > 0
+                visible: pushService.token && pushService.token.length > 0
 
                 onClicked: {
                     // Copy token to clipboard for server integration testing
-                    console.log("Token copied: " + pushClient.token);
+                    console.log("Token copied: " + pushService.token);
                     // Note: Clipboard functionality would need additional implementation
                     helloLabel.text = i18n.tr('Token copied!');
                     resetTimer.start();
@@ -300,12 +362,117 @@ MainView {
         }
     }
 
+    // Dummy notification popup (looks like a real system notification)
+    Rectangle {
+        id: dummyNotificationPopup
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: units.gu(12)
+        color: "#424242"
+        visible: false
+        z: 1001
+        opacity: 0.95
+
+        Rectangle {
+            anchors.fill: parent
+            color: "white"
+            border.color: "#E0E0E0"
+            border.width: 1
+
+            Row {
+                anchors.left: parent.left
+                anchors.leftMargin: units.gu(2)
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: units.gu(2)
+
+                Rectangle {
+                    width: units.gu(6)
+                    height: units.gu(6)
+                    color: "#2196F3"
+                    radius: units.gu(1)
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Label {
+                        anchors.centerIn: parent
+                        text: "📱"
+                        fontSize: "large"
+                    }
+                }
+
+                Column {
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: units.gu(0.5)
+
+                    Label {
+                        id: notificationTitle
+                        text: "Notification Title"
+                        fontSize: "medium"
+                        font.weight: Font.Bold
+                        color: "#212121"
+                    }
+
+                    Label {
+                        id: notificationMessage
+                        text: "Notification message"
+                        fontSize: "small"
+                        color: "#757575"
+                        wrapMode: Text.WordWrap
+                    }
+                }
+            }
+
+            // Close button
+            Rectangle {
+                anchors.right: parent.right
+                anchors.rightMargin: units.gu(1)
+                anchors.top: parent.top
+                anchors.topMargin: units.gu(1)
+                width: units.gu(3)
+                height: units.gu(3)
+                color: "transparent"
+
+                Label {
+                    anchors.centerIn: parent
+                    text: "×"
+                    fontSize: "large"
+                    color: "#757575"
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        dummyNotificationPopup.visible = false;
+                    }
+                }
+            }
+        }
+    }
+
+    // Function to show notification popup
+    function showNotificationPopup(title, message) {
+        console.log("📱 SHOWING DUMMY NOTIFICATION POPUP:", title, "-", message);
+        notificationTitle.text = title || "Test Notification";
+        notificationMessage.text = message || "Test message";
+        dummyNotificationPopup.visible = true;
+        dummyNotificationTimer.start();
+    }
+
     Timer {
         id: testNotificationTimer
         interval: 3000
         repeat: false
         onTriggered: {
             testNotificationRect.visible = false;
+        }
+    }
+
+    Timer {
+        id: dummyNotificationTimer
+        interval: 8000
+        repeat: false
+        onTriggered: {
+            dummyNotificationPopup.visible = false;
         }
     }
 
