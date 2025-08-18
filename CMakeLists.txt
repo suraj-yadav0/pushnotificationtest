@@ -38,6 +38,15 @@ endif()
 configure_file(manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/manifest.json)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/manifest.json DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES ${PROJECT_NAME}.apparmor DESTINATION ${DATA_DIR})
+install(FILES ${PROJECT_NAME}.url-dispatcher DESTINATION ${DATA_DIR})
+
+# Add subdirectories for push notification system
+add_subdirectory(common/auxdb)
+add_subdirectory(push)
+
+# Install legacy push-helper files (backup)
+install(FILES push-helper.json DESTINATION ${DATA_DIR})
+install(PROGRAMS push-helper DESTINATION ${DATA_DIR})
 
 install(DIRECTORY assets DESTINATION ${DATA_DIR})
 

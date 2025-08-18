@@ -7,6 +7,10 @@
         "pushnotification": {
             "apparmor": "pushnotification.apparmor",
             "desktop":  "pushnotification.desktop"
+        },
+        "push": {
+            "apparmor": "push/push-apparmor.json",
+            "push-helper": "push/push-helper.json"
         }
     },
     "version": "1.0.0",
