@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pushnotification.surajyadav\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-18 10:38+0000\n"
+"POT-Creation-Date: 2025-11-07 11:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,31 +17,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/Main.qml:137
+#: ../qml/Main.qml:191
 msgid "Push Notification Demo"
 msgstr ""
 
-#: ../qml/Main.qml:152 ../qml/Main.qml:484
+#: ../qml/Main.qml:206 ../qml/Main.qml:538
 msgid "Hello World!"
 msgstr ""
 
-#: ../qml/Main.qml:159
+#: ../qml/Main.qml:213
 msgid "Push service status unknown"
 msgstr ""
 
-#: ../qml/Main.qml:173
+#: ../qml/Main.qml:227
 msgid "Register Push Service"
 msgstr ""
 
-#: ../qml/Main.qml:173
+#: ../qml/Main.qml:227
 msgid "Registering..."
 msgstr ""
 
-#: ../qml/Main.qml:186
+#: ../qml/Main.qml:240
 msgid "Send Test Notification"
 msgstr ""
 
-#: ../qml/Main.qml:204
+#: ../qml/Main.qml:258
 msgid ""
 "✅ NOTIFICATION SENT!\n"
 "\n"
@@ -49,29 +49,29 @@ msgid ""
 "This simulates a real system notification."
 msgstr ""
 
-#: ../qml/Main.qml:218
+#: ../qml/Main.qml:272
 msgid "Send REAL Local Notification"
 msgstr ""
 
-#: ../qml/Main.qml:230
+#: ../qml/Main.qml:284
 msgid "Run Local Notification Tests"
 msgstr ""
 
-#: ../qml/Main.qml:237
+#: ../qml/Main.qml:291
 msgid ""
 "Local notifications sent!\n"
 "Check your notification panel!"
 msgstr ""
 
-#: ../qml/Main.qml:244
+#: ../qml/Main.qml:298
 msgid "Send Photo Notification"
 msgstr ""
 
-#: ../qml/Main.qml:249
+#: ../qml/Main.qml:303
 msgid "Photo notification sent!"
 msgstr ""
 
-#: ../qml/Main.qml:259
+#: ../qml/Main.qml:313
 msgid ""
 "Desktop Mode: Push notifications require an actual Ubuntu Touch device.\n"
 "\n"
@@ -81,45 +81,45 @@ msgid ""
 "3. Check device notifications"
 msgstr ""
 
-#: ../qml/Main.qml:261
+#: ../qml/Main.qml:315
 msgid ""
 "Note: This simulates local notifications.\n"
 "Real notifications come from your server via Ubuntu Push Service."
 msgstr ""
 
-#: ../qml/Main.qml:273
+#: ../qml/Main.qml:327
 msgid "Copy Token to Clipboard"
 msgstr ""
 
-#: ../qml/Main.qml:282
+#: ../qml/Main.qml:336
 msgid "Token copied!"
 msgstr ""
 
-#: ../qml/Main.qml:302
+#: ../qml/Main.qml:356
 msgid "Service: "
 msgstr ""
 
-#: ../qml/Main.qml:307
+#: ../qml/Main.qml:361
 msgid "Registered: "
 msgstr ""
 
-#: ../qml/Main.qml:312
+#: ../qml/Main.qml:366
 msgid "Token: "
 msgstr ""
 
-#: ../qml/Main.qml:331
+#: ../qml/Main.qml:385
 msgid ""
 "Test notification sent!\n"
 "Token: "
 msgstr ""
 
-#: ../qml/Main.qml:334
+#: ../qml/Main.qml:388
 msgid ""
 "Cannot send notification:\n"
 "Push service not ready"
 msgstr ""
 
-#: ../qml/Main.qml:358
+#: ../qml/Main.qml:412
 msgid ""
 "🔔 Simulated Push Notification\n"
 "This would be a real notification from your server"

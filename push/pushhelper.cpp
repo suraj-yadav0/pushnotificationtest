@@ -54,8 +54,12 @@ void PushHelper::process()
         return;
     }
     
-    writePostalMessage(mPostalMessage, mOutfile);
-    qDebug(pushHelper) << "Push message processing completed";
+    // Post the notification to the Postal service (this creates system notification)
+    QJsonDocument doc(mPostalMessage);
+    QString messageJson = doc.toJson(QJsonDocument::Compact);
+    m_postalClient->post(messageJson);
+    
+    qDebug(pushHelper) << "Push message processing completed - notification posted to system";
     
     Q_EMIT done();
 }

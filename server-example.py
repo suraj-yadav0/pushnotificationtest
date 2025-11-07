@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Sample server script for sending push notifications to Ubuntu Touch devices
-using the push notification system.
+Sample server script for sending push notifications to Lomiri (Ubuntu Touch) devices
+using the Lomiri Push Service.
 
-This script demonstrates how to integrate with Ubuntu Push Service
+This script demonstrates how to integrate with Lomiri Push Service
 to send notifications to your app.
 """
 
@@ -13,18 +13,18 @@ import argparse
 import time
 from datetime import datetime, timedelta
 
-class UbuntuPushClient:
+class LomiriPushClient:
     def __init__(self, app_id, auth_token=None):
         self.app_id = app_id
         self.auth_token = auth_token
-        self.push_url = "https://push.ubuntu.com/notify"
+        self.push_url = "https://push.lomiri.com/notify"  # Updated to Lomiri service
         
     def send_notification(self, device_token, message_data, options=None):
         """
-        Send a push notification to a specific device
+        Send a push notification to a specific device using Lomiri Push Service
         
         Args:
-            device_token (str): The device-specific push token
+            device_token (str): The device-specific push token from PushNotifications.Register
             message_data (dict): Message data in the format expected by our push helper
             options (dict): Additional notification options
         """
@@ -140,7 +140,7 @@ def main():
     args = parser.parse_args()
     
     # Initialize push client
-    client = UbuntuPushClient(args.app_id, args.auth)
+    client = LomiriPushClient(args.app_id, args.auth)
     
     if args.demo:
         print("Running push notification demo...")

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Push helper script for pushnotification app
-# This script handles incoming push notifications and creates real system notifications
+# This script processes incoming push notifications and triggers system notifications
 
 APP_ID="pushnotification.surajyadav_pushnotification"
 LOG_FILE="/tmp/push-helper.log"
@@ -8,51 +8,34 @@ LOG_FILE="/tmp/push-helper.log"
 echo "$(date): Push notification received for $APP_ID" >> "$LOG_FILE"
 echo "Args: $@" >> "$LOG_FILE"
 
-# Function to create a real notification
-create_notification() {
-    local title="$1"
-    local message="$2"
-    local icon="$3"
-    
-    echo "$(date): Creating notification - Title: $title, Message: $message" >> "$LOG_FILE"
-    
-    # Method 1: Use notify-send if available
-    if command -v notify-send >/dev/null 2>&1; then
-        notify-send "$title" "$message" \
-            --icon="${icon:-info}" \
-            --app-name="Push Notification Test" \
-            --urgency=normal \
-            --expire-time=10000 2>/dev/null
-        echo "$(date): Notification sent via notify-send" >> "$LOG_FILE"
-    fi
-    
-    # Method 2: Use Ubuntu Touch postal notification system if available
-    if [ -f "/usr/bin/ubuntu-push-client" ] || [ -f "/usr/bin/lomiri-push-client" ]; then
-        echo "$(date): Ubuntu Touch notification system detected" >> "$LOG_FILE"
-        # Create a simple notification file that the system can process
-        echo "{\"title\":\"$title\",\"message\":\"$message\",\"icon\":\"$icon\",\"timestamp\":\"$(date -Iseconds)\"}" > /tmp/app-notification.json
-        echo "$(date): Ubuntu Touch notification data created" >> "$LOG_FILE"
-    fi
-    
-    # Method 3: Log the notification for debugging
-    echo "NOTIFICATION: $title - $message (icon: $icon)" >> "$LOG_FILE"
-}
+# For demonstration purposes, create a test notification directly
+# In a real app, this would process the actual push message from the server
+echo "$(date): Creating test system notification via Postal service" >> "$LOG_FILE"
 
-# Handle different types of notifications
-case "$1" in
-    "notification")
-        # Process incoming notification data
-        echo "Processing notification: $2" >> "$LOG_FILE"
-        create_notification "Push Notification Test" "Test notification from your app!" "info"
-        ;;
-    "test")
-        # Test notification from the app
-        create_notification "Test Notification" "✅ This is a test notification! Your app is working correctly." "info"
-        ;;
-    *)
-        # Default test notification
-        create_notification "Push Notification" "Dummy notification triggered!" "info"
-        ;;
-esac
+# Create a notification in the correct Postal format
+NOTIFICATION_DATA='{
+    "message": "Push notification received!",
+    "notification": {
+        "card": {
+            "summary": "Push Notification",
+            "body": "You have received a push notification!",
+            "popup": true,
+            "persist": true
+        },
+        "sound": true,
+        "vibrate": true,
+        "tag": "push-demo"
+    }
+}'
+
+# Use gdbus to post directly to the Postal service
+gdbus call --session \
+    --dest com.lomiri.Postal \
+    --object-path "/com/lomiri/Postal/pushnotification_2esurajyadav" \
+    --method com.lomiri.Postal.Post \
+    "$APP_ID" \
+    "$NOTIFICATION_DATA" >> "$LOG_FILE" 2>&1
+
+echo "$(date): Notification posted to Postal service" >> "$LOG_FILE"
 
 exit 0

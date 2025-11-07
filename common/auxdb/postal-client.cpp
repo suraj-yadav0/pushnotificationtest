@@ -89,3 +89,39 @@ void PostalClient::clearPersistent(const QStringList &tags)
     QDBusPendingCall pcall = bus.asyncCall(message);
     // Fire and forget - don't wait for response
 }
+
+void PostalClient::post(const QString &message)
+{
+    QDBusConnection bus = QDBusConnection::sessionBus();
+    if (!bus.isConnected()) {
+        qWarning(postalClient) << "D-Bus session bus not connected";
+        return;
+    }
+    
+    QString path(POSTAL_PATH);
+    path += "/" + m_pkgName;
+    
+    qDebug(postalClient) << "Posting notification to Postal service";
+    qDebug(postalClient) << "D-Bus path:" << path;
+    qDebug(postalClient) << "Message:" << message;
+    
+    QDBusMessage dbusMessage = QDBusMessage::createMethodCall(
+        POSTAL_SERVICE, path, POSTAL_IFACE, "Post");
+    dbusMessage << m_appId << message;
+    
+    QDBusPendingCall pcall = bus.asyncCall(dbusMessage);
+    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pcall, this);
+    connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher *)),
+            this, SLOT(postFinished(QDBusPendingCallWatcher *)));
+}
+
+void PostalClient::postFinished(QDBusPendingCallWatcher *watcher)
+{
+    QDBusPendingReply<void> reply = *watcher;
+    if (reply.isError()) {
+        qWarning(postalClient) << "Post D-Bus call failed:" << reply.error().message();
+    } else {
+        qDebug(postalClient) << "Notification posted successfully to Postal service";
+    }
+    watcher->deleteLater();
+}

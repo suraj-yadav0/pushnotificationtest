@@ -21,6 +21,8 @@ import Qt.labs.settings 1.0
 // Note: Ubuntu.PushNotifications 0.1 is deprecated
 // Modern Ubuntu Touch uses push-helper approach
 
+import Lomiri.PushNotifications 0.1 as PushNotifications
+
 MainView {
     id: root
     objectName: 'mainView'
@@ -44,50 +46,98 @@ MainView {
     }
 
     // Modern Ubuntu Touch push notification setup
-    // Uses push-helper instead of deprecated PushClient
+    // Uses Lomiri PushNotifications service for real token registration
+    PushNotifications.PushClient {
+        id: pushClient
+        appId: "pushnotification.surajyadav_pushnotification"
+        
+        Component.onCompleted: {
+            // Connect to notification signal
+            notificationsChanged.connect(handleNotifications)
+            error.connect(handlePushError)
+        }
+        
+        onTokenChanged: {
+            console.log("Real push token received:", token)
+            pushService.token = token
+            pushService.statusMessage = "Push token registered: " + token.substring(0, 10) + "..."
+            settings.pushServiceEnabled = true
+            console.log("Token saved to settings")
+        }
+    }
+    
+    // Handle push notifications received via Postal service
+    function handleNotifications(notifications) {
+        console.log("Notifications received:", notifications.length)
+        
+        for (var i = 0; i < notifications.length; i++) {
+            var notification = notifications[i]
+            console.log("Processing notification:", notification)
+            
+            try {
+                var notifData = JSON.parse(notification)
+                
+                // Extract notification details
+                var message = notifData.message || ""
+                var card = notifData.notification ? notifData.notification.card : null
+                
+                if (card) {
+                    showNotificationPopup(card.summary || "Notification", 
+                                        card.body || message)
+                }
+                
+                // Update badge count if present
+                if (notifData.notification && notifData.notification["emblem-counter"]) {
+                    var counter = notifData.notification["emblem-counter"]
+                    pushService.updateBadgeCount(counter.count || 0)
+                }
+                
+            } catch (e) {
+                console.log("Error parsing notification:", e)
+            }
+        }
+    }
+    
+    // Handle push client errors
+    function handlePushError(errorMsg) {
+        console.log("Push error:", errorMsg)
+        pushService.statusMessage = "Push error: " + errorMsg
+    }
+
+    // Push service status and token management
     QtObject {
         id: pushService
-
-        property bool isInitialized: false
+        property bool isInitialized: true
         property string token: ""
         property string statusMessage: "Initializing push service..."
         property bool isRegistering: false
         property int badgeCount: 0
 
         Component.onCompleted: {
-            console.log("Modern push service initialized");
-            statusMessage = "Push service ready (using push-helper approach)";
-            isInitialized = true;
-
-            // In modern Ubuntu Touch, push tokens are managed differently
-            // The app registers via push-helper configuration
-            checkPushHelperStatus();
-        }
-
-        function checkPushHelperStatus() {
-            console.log("Checking push-helper configuration...");
-            statusMessage = "Push-helper approach: Configure via push-helper.json";
-
-            // Simulate token generation for demonstration
-            Qt.callLater(function () {
-                token = "demo-token-" + Math.random().toString(36).substr(2, 16);
-                statusMessage = "Demo token generated (push-helper method)";
-                settings.pushServiceEnabled = true;
-                console.log("Demo token:", token);
-            });
+            console.log("Push service initialized with Lomiri PushNotifications");
+            statusMessage = "Push service ready - waiting for token..."
+            
+            // The PushClient will automatically register and get token
+            if (pushClient.token) {
+                token = pushClient.token
+                statusMessage = "Token available: " + token.substring(0, 10) + "..."
+            }
         }
 
         function register() {
-            console.log("Push registration via push-helper...");
+            console.log("Push registration via Lomiri PushNotifications...");
             isRegistering = true;
-            statusMessage = "Registering via push-helper...";
-
-            // In real implementation, this would configure push-helper
-            // and communicate with lomiri-push-service
+            statusMessage = "Registering with push service...";
+            
+            // PushClient handles registration automatically
+            // Just wait for tokenChanged signal
             Qt.callLater(function () {
                 isRegistering = false;
-                statusMessage = "Registration complete (push-helper method)";
-                settings.pushServiceEnabled = true;
+                if (pushClient.token) {
+                    statusMessage = "Registration complete - token received";
+                } else {
+                    statusMessage = "Registration pending - waiting for token...";
+                }
             });
         }
 
@@ -108,9 +158,13 @@ MainView {
     }
 
     function handleAppActivation() {
-        console.log("App activated - checking for deep link parameters");
-        // In a real app, you would parse URL parameters here
-        // Format: pushnotification://chat/123456789
+        console.log("App activated - checking for postal messages");
+        
+        // According to documentation: "apps should check for pending notifications 
+        // whenever they are activated or started"
+        pushClient.getNotifications()
+        
+        // Handle deep links from notifications
         var lastChatId = settings.lastChatId;
         if (lastChatId) {
             console.log("Opening chat from notification:", lastChatId);

@@ -27,9 +27,11 @@ public:
     
     void setCount(int count);
     void clearPersistent(const QStringList &tags);
+    void post(const QString &message);
 
 private Q_SLOTS:
     void setCountFinished(QDBusPendingCallWatcher *watcher);
+    void postFinished(QDBusPendingCallWatcher *watcher);
 
 private:
     QString m_appId;

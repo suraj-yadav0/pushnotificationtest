@@ -1,28 +1,129 @@
-# Ubuntu Touch Push Notification Demo
+# Lomiri Push Notification Demo
 
-A simple Hello World app for Ubuntu Touch that demonstrates push notification functionality.
+A comprehensive demo app for Lomiri (Ubuntu Touch) that demonstrates **real system notifications** using the Lomiri Push Service and Postal Service.
+
+## Features
+
+- ✅ **Real System Notifications**: Notifications appear in the Lomiri notification panel
+- ✅ **Push Service Integration**: Uses Lomiri.PushNotifications for device registration
+- ✅ **Postal Service Delivery**: Notifications delivered via com.lomiri.Postal service
+- ✅ **Deep Linking**: Tap notifications to open specific chats/messages
+- ✅ **Badge Counter**: Shows unread notification count
+- ✅ **Persistent Notifications**: Notifications remain until dismissed
+
+## How System Notifications Work
+
+Unlike traditional Android/iOS apps, Lomiri uses a **server-mediated push system**:
+
+1. **App Registration**: App registers with Lomiri Push Service to get device token
+2. **Server Push**: Your server sends notifications to the device token
+3. **Postal Delivery**: Push service delivers to Postal service, which creates system notification
+4. **User Interaction**: System displays notification in panel with sound/vibration
 
 ## Project Structure
 
 ```
-pushnotification-demo/
-├── manifest.json          # App manifest and metadata
-├── pushnotification.desktop # Desktop entry file
-├── pushnotification.apparmor # Security permissions
-├── Main.qml               # Main application UI
-├── pushnotification.png   # App icon (64x64 recommended)
-└── README.md             # This file
+pushnotification/
+├── manifest.json.in           # App manifest with push hooks
+├── pushnotification.apparmor  # Security permissions (push-notification-client)
+├── qml/Main.qml              # Main UI with Lomiri.PushNotifications integration
+├── push/                     # Native push processing
+│   ├── push.cpp             # Push helper entry point
+│   ├── pushhelper.cpp       # Message processing and Postal posting
+│   └── push-helper.json     # Push helper configuration
+├── common/auxdb/            # Postal service client
+│   ├── postal-client.cpp    # D-Bus interface to com.lomiri.Postal
+│   └── postal-client.h      # Postal service methods
+├── push-helper              # Bash script for push message handling
+├── server-example.py        # Python server for sending push notifications
+├── test-postal-notification.sh # Test script for direct Postal notifications
+└── README.md
 ```
 
-## Prerequisites
+## Testing System Notifications
 
-1. **Ubuntu Touch Development Environment**:
-   - Install clickable: `sudo snap install clickable --classic`
-   - Or use the legacy Ubuntu SDK if preferred
+### Method 1: Direct Postal Service Test
 
-2. **Device/Emulator**:
-   - Ubuntu Touch device or emulator
-   - Device must be in developer mode
+Test notifications without needing a server:
+
+```bash
+# Run this on your Ubuntu Touch device/emulator
+./test-postal-notification.sh
+```
+
+This will create a system notification using the Postal service directly.
+
+### Method 2: Full Push Service Test
+
+For complete end-to-end testing:
+
+1. **Register your app** at [Lomiri My Apps](https://myapps.lomiri.com/)
+2. **Get API credentials** from the dashboard
+3. **Deploy the app** to your device
+4. **Run the app** to get the device token (shown in app UI)
+5. **Send test notifications**:
+
+```bash
+python3 server-example.py \
+    --app-id pushnotification.surajyadav_pushnotification \
+    --token YOUR_DEVICE_TOKEN \
+    --auth YOUR_API_TOKEN \
+    --message "Hello from server!" \
+    --sender "Test Server"
+```
+
+### Method 3: In-App Testing
+
+The app includes buttons to test in-app notifications and push registration.
+
+## Key Implementation Details
+
+### Push Service Registration
+
+```qml
+import Lomiri.PushNotifications 0.1 as PushNotifications
+
+PushNotifications.PushClient {
+    appId: "pushnotification.surajyadav_pushnotification"
+    
+    onTokenChanged: {
+        // Send token to your server
+        console.log("Device token:", token)
+    }
+    
+    onMessageReceived: {
+        // Handle incoming push messages
+        handlePushMessage(message)
+    }
+}
+```
+
+### Postal Service Notification
+
+```cpp
+// In pushhelper.cpp
+QJsonDocument doc(postalMessage);
+QString messageJson = doc.toJson(QJsonDocument::Compact);
+m_postalClient->post(messageJson);  // Posts to com.lomiri.Postal.Post
+```
+
+### Notification Format
+
+```json
+{
+    "notification": {
+        "card": {
+            "summary": "Notification Title",
+            "body": "Notification message text",
+            "popup": true,
+            "persist": true
+        },
+        "sound": true,
+        "vibrate": true,
+        "tag": "unique-notification-id"
+    }
+}
+```
 
 ## Setup Instructions
 
