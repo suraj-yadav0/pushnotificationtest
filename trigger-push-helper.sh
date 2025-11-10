@@ -9,7 +9,7 @@ adb shell "mkdir -p /tmp/push_test && cat > /tmp/push_test/input.json << 'PUSHEO
     \"message\": {
         \"loc_key\": \"MESSAGE_TEXT\",
         \"loc_args\": [\"Test Sender\", \"This notification is from the push-helper!\"],
-        \"badge\": 3,
+        \"badge\": 10,
         \"custom\": {
             \"from_id\": \"555444333\"
         }
