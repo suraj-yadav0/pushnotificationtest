@@ -7,12 +7,14 @@ find_package(Qt5DBus REQUIRED)
 
 set(AUXDB_SOURCES
     postal-client.cpp
+    notification-client.cpp
     auxdatabase.cpp
     avatarmaptable.cpp
 )
 
 set(AUXDB_HEADERS
     postal-client.h
+    notification-client.h
     auxdatabase.h
     avatarmaptable.h
 )

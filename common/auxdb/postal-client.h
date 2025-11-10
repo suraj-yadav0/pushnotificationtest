@@ -13,6 +13,7 @@
 #include <QDBusPendingCallWatcher>
 #include <QString>
 #include <QStringList>
+#include <QVariantMap>
 
 #define POSTAL_SERVICE "com.lomiri.Postal"
 #define POSTAL_PATH "/com/lomiri/Postal"
@@ -24,10 +25,11 @@ class PostalClient : public QObject
 
 public:
     explicit PostalClient(QString appId, QObject *parent = nullptr);
-    
+
     void setCount(int count);
     void clearPersistent(const QStringList &tags);
     void post(const QString &message);
+    void postNotification(const QString &tag, const QString &summary, const QString &body, const QString &icon, const QVariantMap &actions = QVariantMap());
 
 private Q_SLOTS:
     void setCountFinished(QDBusPendingCallWatcher *watcher);

@@ -16,6 +16,7 @@
 #include <QDebug>
 
 #include "../common/auxdb/postal-client.h"
+#include "../common/auxdb/notification-client.h"
 #include "../common/auxdb/auxdatabase.h"
 
 class PushHelper : public QObject
@@ -34,6 +35,7 @@ private:
     QJsonObject readPushMessage(const QString &filename);
     QJsonObject pushToPostalMessage(const QJsonObject &pushMessage);
     void writePostalMessage(const QJsonObject &postalMessage, const QString &filename);
+    void writeOutputFile(const QString &summary, const QString &body, const QString &icon, const QString &tag, int count);
     
     QString formatNotificationMessage(const QString &messageType, const QJsonArray &args);
     qint64 extractChatId(const QJsonObject &custom);
@@ -43,5 +45,6 @@ private:
     QJsonObject mPostalMessage;
     
     PostalClient *m_postalClient;
+    NotificationClient *m_notificationClient;
     AuxDatabase m_auxdb;
 };

@@ -5,6 +5,9 @@
 APP_ID="pushnotification.surajyadav_pushnotification"
 PKG_NAME="pushnotification_2esurajyadav"
 
+# Set D-Bus session address for phablet user
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/32011/bus"
+
 echo "Testing Lomiri Postal Service notifications..."
 echo "App ID: $APP_ID"
 echo "Package: $PKG_NAME"
